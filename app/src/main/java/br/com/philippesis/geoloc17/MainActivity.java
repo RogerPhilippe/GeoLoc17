@@ -3,16 +3,23 @@ package br.com.philippesis.geoloc17;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.Calendar;
+
+import br.com.philippesis.geoloc17.data.DatabaseHandler;
+import br.com.philippesis.geoloc17.data.models.LocationModel;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -20,17 +27,20 @@ public class MainActivity extends Activity {
 
     private Button btnLocation;
     private TextView txtLocation;
-
+    private RecyclerView historyList;
     private FusedLocationProviderClient client;
+    private DatabaseHandler databaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        btnLocation = (Button) findViewById(R.id.idBtnGetLocation);
+        btnLocation = findViewById(R.id.idBtnGetLocation);
 
-        txtLocation = (TextView) findViewById(R.id.idTxtLocation);
+        txtLocation = findViewById(R.id.idTxtLocation);
+
+        historyList = findViewById(R.id.idHistoryList);
 
         requestPermission();
 
@@ -55,7 +65,27 @@ public class MainActivity extends Activity {
                     public void onSuccess(Location location) {
 
                         if (location != null) {
-                            txtLocation.setText("Última localização conhecida: ("+location.getLatitude()+") | ("+location.getLongitude() + ")");
+                            txtLocation.setText(getString(
+                                    R.string.location_label,
+                                    String.valueOf(location.getLatitude()),
+                                    String.valueOf(location.getLongitude())
+                            ));
+
+                            databaseHandler = new DatabaseHandler(MainActivity.this);
+
+                            LocationModel locationModel = new LocationModel(
+                                    0,
+                                    location.getLatitude(),
+                                    location.getLongitude(),
+                                    Calendar.getInstance().getTimeInMillis());
+
+                            boolean success = databaseHandler.addLocation(locationModel);
+
+                            String msg = "Erro ao tentar salvar";
+
+                            if (success) msg = "Salvo com sucesso!";
+
+                            setToast(msg, Toast.LENGTH_SHORT);
 
                         }
 
@@ -68,6 +98,12 @@ public class MainActivity extends Activity {
 
     private void requestPermission() {
         ActivityCompat.requestPermissions(this, new String[] {ACCESS_FINE_LOCATION}, 1);
+    }
+
+    private void setToast(String msg, int timeShow) {
+
+        Toast.makeText(this, msg,timeShow).show();
+
     }
 
 }

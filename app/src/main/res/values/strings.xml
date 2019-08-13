@@ -2,4 +2,5 @@
     <string name="app_name">GeoLoc17</string>
     <string name="get_location">Get Location</string>
     <string name="location_null">Location Null</string>
+    <string name="location_label">Última localização conhecida: %1$s | %2$s</string>
 </resources>
