@@ -9,3 +9,6 @@
 /build
 /captures
 .externalNativeBuild
+.idea/assetWizardSettings.xml
+.idea/dbnavigator.xml
+.idea/encodings.xml
